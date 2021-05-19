@@ -1,0 +1,10 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "weather-api"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-34ff74b3m7ta"
+s3_prefix = "weather-api"
+region = "ap-southeast-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
