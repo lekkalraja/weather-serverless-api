@@ -21,16 +21,18 @@ Resources:
         CatchAll:
           Type: Api
           Properties:
-            Path: /weather
+            Path: /weather/{country}
             Method: GET
       Environment:
         Variables:
-          PARAM1: VALUE
+          HOST: api.openweathermap.org
+          ENDPOINT: data/2.5/weather
+          TOKEN: /weather/dev/token
 
 Outputs:
   WeatherAPI:
     Description: "API Gateway endpoint URL for Prod environment for First Function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/weather/{country}"
   WeatherFunction:
     Description: "First Lambda Function ARN"
     Value: !GetAtt WeatherFunction.Arn
