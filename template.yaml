@@ -28,14 +28,3 @@ Resources:
           HOST: api.openweathermap.org
           ENDPOINT: data/2.5/weather
           TOKEN: /weather/dev/token
-
-Outputs:
-  WeatherAPI:
-    Description: "API Gateway endpoint URL for Prod environment for First Function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/weather/{country}"
-  WeatherFunction:
-    Description: "First Lambda Function ARN"
-    Value: !GetAtt WeatherFunction.Arn
-  WeatherFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt WeatherFunctionRole.Arn
