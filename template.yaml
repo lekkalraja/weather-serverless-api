@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
   weather-serverless-api
-  
+
   Sample SAM Template for weather-serverless-api
 
 Globals:
@@ -17,6 +17,20 @@ Resources:
       Handler: weather-api
       Runtime: go1.x
       Tracing: Active
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - Statement:
+          - Sid: SSMDescribeParametersPolicy
+            Effect: Allow
+            Action:
+            - ssm:DescribeParameters
+            Resource: '*'
+          - Sid: SSMGetParameterPolicy
+            Effect: Allow
+            Action:
+            - ssm:GetParameters
+            - ssm:GetParameter
+            Resource: '*'
       Events:
         CatchAll:
           Type: Api
@@ -28,3 +42,20 @@ Resources:
           HOST: api.openweathermap.org
           ENDPOINT: data/2.5/weather
           TOKEN: /weather/dev/token
+          TABLE_NAME: !Ref WeatherHistory
+  WeatherHistory:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "Country"
+          AttributeType: "S"
+        - AttributeName: "Timestamp"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "Country"
+          KeyType: "HASH"
+        - AttributeName: "Timestamp"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5

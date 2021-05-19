@@ -3,30 +3,47 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/ssm"
 )
 
 var url = ""
+var dynamoClient *dynamodb.DynamoDB
 
-func init() {
-	host := os.Getenv("HOST")
-	path := os.Getenv("ENDPOINT")
-	token := getToken(os.Getenv("TOKEN"))
-	fmt.Println(token)
-	url = fmt.Sprintf("http://%s/%s?q=<country>&appid=%s", host, path, token)
+type Item struct {
+	Country   string
+	Timestamp string
+	Data      string
 }
 
-func getToken(tokenPath string) string {
+func init() {
 
-	paramStore := ssm.New(session.New(), aws.NewConfig())
+	sess, err := session.NewSession()
+
+	if err != nil {
+		panic(err)
+	}
+
+	url = fmt.Sprintf("http://%s/%s?q=<country>&appid=%s",
+		os.Getenv("HOST"), os.Getenv("ENDPOINT"), getToken(os.Getenv("TOKEN"), sess))
+
+	dynamoClient = dynamodb.New(sess)
+}
+
+func getToken(tokenPath string, sess *session.Session) string {
+
+	paramStore := ssm.New(sess, aws.NewConfig())
 
 	param, err := paramStore.GetParameter(&ssm.GetParameterInput{
 		Name:           aws.String(tokenPath),
@@ -38,6 +55,28 @@ func getToken(tokenPath string) string {
 	}
 
 	return *param.Parameter.Value
+}
+
+func createItem(item Item) {
+
+	av, err := dynamodbattribute.MarshalMap(item)
+
+	if err != nil {
+		log.Fatalf("Got error marshalling new movie item: %s", err)
+	}
+
+	input := &dynamodb.PutItemInput{
+		Item:      av,
+		TableName: aws.String(os.Getenv("TABLE_NAME")),
+	}
+
+	_, err = dynamoClient.PutItem(input)
+
+	if err != nil {
+		log.Fatalf("Got error calling PutItem: %s", err)
+	}
+
+	fmt.Println("Successfully added '" + item.Country)
 }
 
 func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -52,6 +91,14 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
+
+	item := Item{
+		Country:   country,
+		Timestamp: time.Now().String(),
+		Data:      string(body),
+	}
+
+	createItem(item)
 
 	return events.APIGatewayProxyResponse{
 		Body:       string(body),
