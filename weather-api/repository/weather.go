@@ -1,13 +1,33 @@
 package repository
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"strings"
+
+	"weather-api/utils"
+
+	"github.com/aws/aws-sdk-go/aws/session"
 )
 
-func GetWeatherResponse(url string) (string, error) {
+var url string
 
-	req, _ := http.NewRequest("GET", url, nil)
+func init() {
+	sess, err := session.NewSession()
+
+	if err != nil {
+		panic(err)
+	}
+
+	url = fmt.Sprintf("http://%s/%s?q=<country>&appid=%s",
+		os.Getenv("HOST"), os.Getenv("ENDPOINT"), utils.GetToken(os.Getenv("TOKEN"), sess))
+
+}
+func GetWeatherResponse(country string) (string, error) {
+
+	req, _ := http.NewRequest("GET", strings.ReplaceAll(url, "<country>", country), nil)
 	res, err := http.DefaultClient.Do(req)
 
 	if err != nil {

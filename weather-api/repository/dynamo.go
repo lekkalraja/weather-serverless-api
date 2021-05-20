@@ -1,15 +1,27 @@
 package repository
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
+
+var dynamoClient *dynamodb.DynamoDB
+
+func init() {
+	sess, err := session.NewSession()
+
+	if err != nil {
+		panic(err)
+	}
+
+	dynamoClient = dynamodb.New(sess)
+}
 
 type Item struct {
 	Country   string
@@ -17,7 +29,7 @@ type Item struct {
 	Data      string
 }
 
-func CreateItem(country string, weather string, dynamoClient *dynamodb.DynamoDB) {
+func CreateItem(country string, weather string) {
 
 	item := Item{
 		Country:   country,
@@ -42,5 +54,5 @@ func CreateItem(country string, weather string, dynamoClient *dynamodb.DynamoDB)
 		log.Fatalf("Got error calling PutItem: %s", err)
 	}
 
-	fmt.Println("Successfully added '" + item.Country)
+	log.Println("Successfully added '" + item.Country)
 }
