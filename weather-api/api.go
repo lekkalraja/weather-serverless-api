@@ -1,7 +1,7 @@
 package main
 
 import (
-	"weather-api/repository"
+	repository "weather-api/repository"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"

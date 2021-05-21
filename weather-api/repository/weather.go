@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"weather-api/utils"
+	utils "weather-api/utils"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
