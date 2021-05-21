@@ -25,7 +25,7 @@ func (dynamo Dynamo) CreateItem(item Item) error {
 	record, err := dynamodbattribute.MarshalMap(item)
 
 	if err != nil {
-		log.Fatalf("Got error marshalling new movie item: %s", err)
+		log.Println("Got error marshalling new movie item: ", err)
 		return err
 	}
 
@@ -37,7 +37,7 @@ func (dynamo Dynamo) CreateItem(item Item) error {
 	_, err = dynamo.Client.PutItem(input)
 
 	if err != nil {
-		log.Fatalf("Got error calling PutItem: %s", err)
+		log.Println("Got error calling PutItem: ", err)
 		return err
 	}
 
