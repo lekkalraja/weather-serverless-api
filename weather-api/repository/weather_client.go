@@ -6,8 +6,12 @@ import (
 	"strings"
 )
 
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 type WeatherAPI struct {
-	Client *http.Client
+	Client HTTPClient
 	URL    string
 }
 

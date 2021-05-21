@@ -42,7 +42,7 @@ func init() {
 
 	url := fmt.Sprintf("http://%s/%s?q=<country>&appid=%s", os.Getenv("HOST"), os.Getenv("ENDPOINT"), token)
 	weatherAPI = repository.WeatherAPI{
-		Client: http.DefaultClient,
+		Client: &http.Client{},
 		URL:    url,
 	}
 }
