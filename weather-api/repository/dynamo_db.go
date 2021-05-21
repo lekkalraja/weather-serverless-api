@@ -2,25 +2,16 @@ package repository
 
 import (
 	"log"
-	"os"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 )
 
-var dynamoClient *dynamodb.DynamoDB
-
-func init() {
-	sess, err := session.NewSession()
-
-	if err != nil {
-		panic(err)
-	}
-
-	dynamoClient = dynamodb.New(sess)
+type Dynamo struct {
+	Client    dynamodbiface.DynamoDBAPI
+	TableName string
 }
 
 type Item struct {
@@ -29,30 +20,27 @@ type Item struct {
 	Data      string
 }
 
-func CreateItem(country string, weather string) {
-
-	item := Item{
-		Country:   country,
-		Timestamp: time.Now().String(),
-		Data:      weather,
-	}
+func (dynamo Dynamo) CreateItem(item Item) error {
 
 	record, err := dynamodbattribute.MarshalMap(item)
 
 	if err != nil {
 		log.Fatalf("Got error marshalling new movie item: %s", err)
+		return err
 	}
 
 	input := &dynamodb.PutItemInput{
 		Item:      record,
-		TableName: aws.String(os.Getenv("TABLE_NAME")),
+		TableName: aws.String(dynamo.TableName),
 	}
 
-	_, err = dynamoClient.PutItem(input)
+	_, err = dynamo.Client.PutItem(input)
 
 	if err != nil {
 		log.Fatalf("Got error calling PutItem: %s", err)
+		return err
 	}
 
 	log.Println("Successfully added '" + item.Country)
+	return nil
 }
