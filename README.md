@@ -81,3 +81,5 @@ This is a AWS Based serverless solution for the multi-tier web application.
 ### Tracing a request using AWS X-Ray
 
 ![X_Ray](images/x-ray-trace.png)
+
+## Note : All the communication from client to DB is on Https and data can be encrypted at rest as well using AWS KMS.
