@@ -66,7 +66,7 @@ This is a AWS Based serverless solution for the multi-tier web application.
 ### UI Screenshots
 
 ![UI_Hyderabd](images/ui_hyd.png)
-![UI_Singapore]images/ui_sing.png)
+![UI_Singapore](images/ui_sing.png)
 ![UI_Invalid](images/ui_invalid.png)
 
 ### API (Accessing API-Gateway using Postman) Screenshots
